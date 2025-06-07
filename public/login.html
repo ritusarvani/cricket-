@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Cricket Club</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 0;
+        }
+
+        .cricket-icon {
+            position: absolute;
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: 0;
+            opacity: 0.7;
+        }
+
+        .stumps { 
+            bottom: 10%; 
+            left: 10%; 
+            width: 80px; 
+            height: 150px; 
+            background-image: url('https://cdn-icons-png.flaticon.com/512/3048/3048122.png');
+            animation: wobble 5s ease infinite;
+        }
+
+        .helmet { 
+            top: 15%; 
+            right: 15%; 
+            width: 100px; 
+            height: 100px; 
+            background-image: url('https://cdn-icons-png.flaticon.com/512/3048/3048113.png');
+            animation: rotate 8s linear infinite;
+        }
+
+        @keyframes wobble {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .auth-container {
+            z-index: 1;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: fadeInUp 0.8s ease-out;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            width: 350px;
+            max-width: 90%;
+        }
+
+        @keyframes fadeInUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .auth-container h2 {
+            color: #2C3E50;
+            margin-bottom: 35px;
+            font-weight: bold;
+            font-size: 2.2em;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.05);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #34495E;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: calc(100% - 30px);
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #BDC3C7;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+            font-size: 1em;
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: #E74C3C;
+            outline: none;
+            box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+        }
+
+        button {
+            background-color: #E74C3C;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease-out;
+            box-shadow: 0 2px 5px rgba(231, 76, 60, 0.4);
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #C0392B;
+            transform: scale(1.03);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        p {
+            margin-top: 25px;
+            color: #7F8C8D;
+            font-size: 1em;
+        }
+
+        a {
+            color: #E74C3C;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="cricket-icon stumps"></div>
+    <div class="cricket-icon helmet"></div>
+    
+    <div class="auth-container" id="login-form">
+        <h2>Cricket Club Login</h2>
+        <label for="login-email">Email:</label>
+        <input type="email" id="login-email" required><br><br>
+        <label for="login-password">Password:</label>
+        <input type="password" id="login-password" required><br><br>
+        <button onclick="login()">Log In</button>
+        <p>New to Cricket Club? <a href="/">Register</a></p>
+    </div>
+
+    <script>
+        async function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                console.log('Login Response Status:', response.status);
+                console.log('Login Response Text:', await response.text());
+
+                if (response.ok) {
+                    alert('Login successful! Welcome back to Cricket Club!');
+                    window.location.href = '/home.html';
+                } else {
+                    alert(`Login failed: ${response.status} - ${await response.text()}`);
+                }
+            } catch (error) {
+                console.error('Error during login:', error);
+                alert('An error occurred during login.');
+            }
+        }
+    </script>
+</body>
+</html>
