@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cricket App - Live Matches</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #008080, #004d4d);
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.85);
+      padding: 30px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      color: #00e6ac;
+    }
+
+    button {
+      padding: 12px 20px;
+      background-color: #00b386;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #009973;
+    }
+
+    #matchData {
+      margin-top: 20px;
+      text-align: left;
+      background-color: rgba(255,255,255,0.05);
+      padding: 15px;
+      border-radius: 8px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .match-card {
+      border-bottom: 1px solid #ccc;
+      padding: 10px 0;
+    }
+
+    .match-card:last-child {
+      border-bottom: none;
+    }
+
+    .match-card strong {
+      color: #00e6ac;
+    }
+
+    #logoutBtn {
+      background-color: #e74c3c;
+      margin-top: 20px;
+    }
+
+    #logoutBtn:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Live Cricket Matches</h2>
+    <button id="getMatchesBtn">Get Matches</button>
+    <div id="matchData">Click the button to load matches.</div>
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
