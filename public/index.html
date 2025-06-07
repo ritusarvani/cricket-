@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Cricket Club</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 0;
+        }
+
+        .cricket-icon {
+            position: absolute;
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: 0;
+            opacity: 0.7;
+        }
+
+        .bat { 
+            top: 10%; 
+            left: 5%; 
+            width: 100px; 
+            height: 200px; 
+            background-image: url('https://cdn-icons-png.flaticon.com/512/3048/3048127.png');
+            animation: swing 8s ease-in-out infinite;
+            transform-origin: top center;
+        }
+
+        .ball { 
+            bottom: 15%; 
+            right: 10%; 
+            width: 80px; 
+            height: 80px; 
+            background-image: url('https://cdn-icons-png.flaticon.com/512/3048/3048107.png');
+            animation: bounce 3s ease infinite;
+        }
+
+        .trophy { 
+            top: 20%; 
+            right: 5%; 
+            width: 100px; 
+            height: 150px; 
+            background-image: url('https://cdn-icons-png.flaticon.com/512/3048/3048150.png');
+            animation: shine 5s ease infinite;
+        }
+
+        @keyframes swing {
+            0%, 100% { transform: rotate(-15deg); }
+            50% { transform: rotate(15deg); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px); }
+        }
+
+        @keyframes shine {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; filter: drop-shadow(0 0 8px gold); }
+            100% { opacity: 0.7; }
+        }
+
+        .auth-container {
+            z-index: 1;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: fadeInUp 0.8s ease-out;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            width: 350px;
+        }
+
+        @keyframes fadeInUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .auth-container h2 {
+            color: #2C3E50;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.8em;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.05);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #34495E;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #BDC3C7;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+            font-size: 1.1em;
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="text"]:focus {
+            border-color: #E74C3C;
+            outline: none;
+            box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+        }
+
+        button {
+            background-color: #E74C3C;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease-out;
+            box-shadow: 0 2px 5px rgba(231, 76, 60, 0.4);
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #C0392B;
+            transform: scale(1.03);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        p {
+            margin-top: 15px;
+            color: #7F8C8D;
+            font-size: 0.85em;
+        }
+
+        a {
+            color: #E74C3C;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="cricket-icon bat"></div>
+    <div class="cricket-icon ball"></div>
+    <div class="cricket-icon trophy"></div>
+    
+    <div class="auth-container" id="registration-form">
+        <h2>Join Cricket Club</h2>
+        <label for="register-name">Name:</label>
+        <input type="text" id="register-name" required><br><br>
+        <label for="register-email">Email:</label>
+        <input type="email" id="register-email" required><br><br>
+        <label for="register-password">Password:</label>
+        <input type="password" id="register-password" required><br><br>
+        <button onclick="register()">Sign Up</button>
+        <p>Already a member? <a href="/login.html">Log In</a></p>
+    </div>
+
+    <script>
+        async function register() {
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const name = document.getElementById('register-name').value;
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password, name })
+                });
+
+                console.log('Register Response Status:', response.status);
+                console.log('Register Response Text:', await response.text());
+
+                if (response.ok) {
+                    alert('Registration successful! Welcome to Cricket Club!');
+                    window.location.href = '/login.html';
+                } else {
+                    alert('Registration failed: ${response.status} - ${await response.text()}');
+                }
+            } catch (error) {
+                console.error('Error during registration:', error);
+                alert('An error occurred during registration.');
+            }
+        }
+    </script>
+</body>
+</html>
