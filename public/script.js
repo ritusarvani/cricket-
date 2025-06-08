@@ -1,22 +1,26 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 
+// Firebase config (Use values from your .env or hardcode here if not using a bundler like Vite/Webpack)
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBgCC0Odm5vHBDb3hESNd9v3nF3fBfORGw",
+  authDomain: "cricket-auth-app.firebaseapp.com",
+  projectId: "cricket-auth-app",
+  storageBucket: "cricket-auth-app.appspot.com",
+  messagingSenderId: "759240201993",
+  appId: "1:759240201993:web:1c9727c9378d3b2116e"
 };
 
+// Init Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 🔒 Auth Check on home page
+  // Home Page Auth Check
   if (window.location.pathname.includes("home")) {
-    auth.onAuthStateChanged(async (user) => {
+    onAuthStateChanged(auth, (user) => {
       if (!user) {
         window.location.href = "/login.html";
       }
@@ -30,23 +34,31 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         const res = await fetch("/cricket/live");
         const data = await res.json();
-        if (data && data.data) {
+
+        if (data && data.data && data.data.length > 0) {
           matchDiv.innerHTML = data.data
-            .map(
-              (m) => `
+            .map((m) => `
               <div class="match-card">
                 <strong>${m.name}</strong><br/>
                 Status: ${m.status}<br/>
                 ${m.date}
               </div>
-            `
-            )
-            .join("");
+            `).join("");
+
+          // OPTIONAL: Save to Firestore
+          for (let match of data.data) {
+            await addDoc(collection(db, "matches"), {
+              name: match.name,
+              status: match.status,
+              date: match.date
+            });
+          }
+
         } else {
           matchDiv.innerHTML = "<p>No matches found.</p>";
         }
       } catch (err) {
-        console.error(err);
+        console.error("Fetch error:", err);
         matchDiv.innerHTML = "<p>Error loading matches.</p>";
       }
     });
@@ -57,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ✍️ Register
+  // Register Page
   const registerForm = document.getElementById("registerForm");
   registerForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -83,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 🔐 Login
+  // Login Page
   const loginForm = document.getElementById("loginForm");
   loginForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
