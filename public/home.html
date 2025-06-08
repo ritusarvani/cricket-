@@ -82,6 +82,10 @@
       background-color: #c0392b;
     }
   </style>
+
+  <!-- ✅ Firebase v9 CDN (supports global firebase object) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <div class="container">
@@ -91,6 +95,47 @@
     <button id="logoutBtn">Logout</button>
   </div>
 
-  <script type="module" src="script.js"></script>
+  <script>
+    // ✅ Replace with your own Firebase config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    // ✅ Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    document.getElementById('getMatchesBtn').addEventListener('click', () => {
+      const matchDataDiv = document.getElementById('matchData');
+      matchDataDiv.innerHTML = 'Loading...';
+
+      db.collection("matches").get().then(snapshot => {
+        let html = '';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          html += `
+            <div class="match-card">
+              <strong>${data.team1}</strong> vs <strong>${data.team2}</strong><br/>
+              Score: ${data.score}<br/>
+              Status: ${data.status}
+            </div>
+          `;
+        });
+        matchDataDiv.innerHTML = html || 'No matches found.';
+      }).catch(error => {
+        console.error("Error fetching matches:", error);
+        matchDataDiv.innerHTML = 'Failed to load matches.';
+      });
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      window.location.href = 'login.html';
+    });
+  </script>
 </body>
 </html>
