@@ -11,9 +11,6 @@
       margin: 0;
       padding: 0;
       color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       min-height: 100vh;
     }
 
@@ -22,15 +19,16 @@
       padding: 30px;
       border-radius: 10px;
       width: 90%;
-      max-width: 600px;
+      max-width: 1200px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-      text-align: center;
+      margin: 20px auto;
     }
 
     h2 {
       margin-bottom: 20px;
       font-size: 28px;
       color: #00e6ac;
+      text-align: center;
     }
 
     button {
@@ -43,98 +41,365 @@
       font-weight: bold;
       cursor: pointer;
       transition: background-color 0.3s ease;
-      margin-top: 10px;
+      margin: 10px 5px;
     }
 
     button:hover {
       background-color: #009973;
     }
 
-    #matchData {
+    #matchData, #playerData {
       margin-top: 20px;
       text-align: left;
       background-color: rgba(255,255,255,0.05);
       padding: 15px;
       border-radius: 8px;
-      max-height: 400px;
+      max-height: 500px;
       overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 15px;
     }
 
-    .match-card {
-      border-bottom: 1px solid #ccc;
-      padding: 10px 0;
+    .match-card, .player-card {
+      border-bottom: 1px solid #444;
+      padding: 15px;
+      margin-bottom: 10px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
     }
 
-    .match-card:last-child {
-      border-bottom: none;
-    }
-
-    .match-card strong {
+    .match-card h3 {
       color: #00e6ac;
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    .match-card p, .player-card p {
+      margin: 5px 0;
+    }
+
+    .match-status {
+      font-weight: bold;
+      color: #ffcc00;
+    }
+
+    .match-live {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { color: #ffcc00; }
+      50% { color: #ff0000; }
+      100% { color: #ffcc00; }
+    }
+
+    .match-result {
+      font-weight: bold;
+      color: #00e6ac;
+    }
+
+    .match-score {
+      font-style: italic;
+    }
+
+    .match-type {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.8em;
+      margin-right: 10px;
+    }
+
+    .live {
+      background-color: #e74c3c;
+    }
+
+    .recent {
+      background-color: #f39c12;
+    }
+
+    .upcoming {
+      background-color: #3498db;
+    }
+
+    .ipl {
+      background-color: #9b59b6;
+    }
+
+    .filter-buttons {
+      margin-bottom: 20px;
+      text-align: center;
     }
 
     #logoutBtn {
       background-color: #e74c3c;
       margin-top: 20px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     #logoutBtn:hover {
       background-color: #c0392b;
     }
-  </style>
 
-  <!-- ✅ Firebase v9 CDN (supports global firebase object) -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #00e6ac;
+      grid-column: 1 / -1;
+    }
+
+    .player-card {
+      display: flex;
+      align-items: center;
+    }
+
+    .player-info {
+      margin-left: 15px;
+    }
+
+    .player-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #fff;
+    }
+
+    .player-name {
+      font-weight: bold;
+      color: #00e6ac;
+    }
+
+    .player-team {
+      font-size: 0.9em;
+      color: #ccc;
+    }
+
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #444;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-weight: bold;
+      border-bottom: 3px solid transparent;
+    }
+
+    .tab.active {
+      border-bottom: 3px solid #00e6ac;
+      color: #00e6ac;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .team-selector {
+      padding: 10px;
+      border-radius: 5px;
+      background: rgba(0,0,0,0.3);
+      color: white;
+      border: 1px solid #444;
+      margin-bottom: 15px;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h2>Live Cricket Matches</h2>
-    <button id="getMatchesBtn">Get Matches</button>
-    <div id="matchData">Click the button to load matches.</div>
+    <h2>Cricket Dashboard</h2>
+    
+    <div class="tabs">
+      <button class="tab active" onclick="openTab('matches')">Matches</button>
+      <button class="tab" onclick="openTab('players')">Players</button>
+    </div>
+    
+    <div id="matches" class="tab-content active">
+      <div class="filter-buttons">
+        <button id="allMatchesBtn">All Matches</button>
+        <button id="liveMatchesBtn">Live Matches</button>
+        <button id="upcomingMatchesBtn">Upcoming Matches</button>
+        <button id="iplMatchesBtn">IPL Matches</button>
+      </div>
+      
+      <button id="getMatchesBtn">Refresh Matches</button>
+      <div id="matchData">
+        <div class="loading">Click "Refresh Matches" to load cricket data</div>
+      </div>
+    </div>
+    
+    <div id="players" class="tab-content">
+      <select id="teamSelect" class="team-selector" onchange="fetchPlayers()">
+        <option value="">All Teams</option>
+        <option value="Mumbai Indians">Mumbai Indians</option>
+        <option value="Chennai Super Kings">Chennai Super Kings</option>
+        <option value="Royal Challengers Bangalore">Royal Challengers Bangalore</option>
+        <option value="Kolkata Knight Riders">Kolkata Knight Riders</option>
+        <option value="Delhi Capitals">Delhi Capitals</option>
+        <option value="Punjab Kings">Punjab Kings</option>
+        <option value="Rajasthan Royals">Rajasthan Royals</option>
+        <option value="Sunrisers Hyderabad">Sunrisers Hyderabad</option>
+        <option value="India">India</option>
+      </select>
+      <div id="playerData">
+        <div class="loading">Select a team to view players</div>
+      </div>
+    </div>
+    
     <button id="logoutBtn">Logout</button>
   </div>
 
   <script>
-    // ✅ Replace with your own Firebase config
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-
-    // ✅ Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    document.getElementById('getMatchesBtn').addEventListener('click', () => {
+    // Function to fetch and display matches
+    async function fetchMatches(filter = 'all') {
       const matchDataDiv = document.getElementById('matchData');
-      matchDataDiv.innerHTML = 'Loading...';
-
-      db.collection("matches").get().then(snapshot => {
-        let html = '';
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          html += `
-            <div class="match-card">
-              <strong>${data.team1}</strong> vs <strong>${data.team2}</strong><br/>
-              Score: ${data.score}<br/>
-              Status: ${data.status}
-            </div>
-          `;
-        });
-        matchDataDiv.innerHTML = html || 'No matches found.';
-      }).catch(error => {
+      matchDataDiv.innerHTML = '<div class="loading">Loading matches...</div>';
+      
+      try {
+        const response = await fetch('/cricket/matches');
+        const data = await response.json();
+        
+        if (data.success && data.data && data.data.length > 0) {
+          let matches = data.data;
+          
+          // Apply filters
+          if (filter === 'live') {
+            matches = matches.filter(match => match.type === 'live');
+          } else if (filter === 'upcoming') {
+            matches = matches.filter(match => match.type === 'upcoming');
+          } else if (filter === 'ipl') {
+            matches = matches.filter(match => 
+              match.name.includes('IPL') || 
+              match.name.includes('Indian Premier League') || 
+              (match.teams && match.teams.some(team => 
+                team.includes('Mumbai') || 
+                team.includes('Chennai') || 
+                team.includes('Bangalore') || 
+                team.includes('Kolkata') || 
+                team.includes('Delhi') || 
+                team.includes('Punjab') || 
+                team.includes('Rajasthan') || 
+                team.includes('Hyderabad')
+              ))
+            );
+          }
+          
+          // Display matches
+          if (matches.length > 0) {
+            matchDataDiv.innerHTML = matches.map(match => `
+              <div class="match-card">
+                <h3>
+                  <span class="match-type ${match.type}">
+                    ${match.type.toUpperCase()}
+                  </span>
+                  ${match.name || `${match.teams?.[0] || 'Team 1'} vs ${match.teams?.[1] || 'Team 2'}`}
+                </h3>
+                <p><strong>Date:</strong> ${new Date(match.date).toLocaleString()}</p>
+                <p><strong>Venue:</strong> ${match.venue || 'Unknown venue'}</p>
+                <p class="${match.isLive ? 'match-status match-live' : 'match-status'}">
+                  <strong>Status:</strong> ${match.status}
+                </p>
+                ${match.score ? `<p class="match-score"><strong>Score:</strong> ${match.score}</p>` : ''}
+                ${match.result ? `<p class="match-result"><strong>Result:</strong> ${match.result}</p>` : ''}
+              </div>
+            `).join('');
+          } else {
+            matchDataDiv.innerHTML = '<div class="loading">No matches found for the selected filter</div>';
+          }
+        } else {
+          matchDataDiv.innerHTML = '<div class="loading">No matches available</div>';
+        }
+      } catch (error) {
         console.error("Error fetching matches:", error);
-        matchDataDiv.innerHTML = 'Failed to load matches.';
-      });
-    });
-
+        matchDataDiv.innerHTML = '<div class="loading">Error loading matches. Please try again.</div>';
+      }
+    }
+    
+    // Function to fetch and display players
+    async function fetchPlayers() {
+      const teamSelect = document.getElementById('teamSelect');
+      const playerDataDiv = document.getElementById('playerData');
+      const team = teamSelect.value;
+      
+      playerDataDiv.innerHTML = '<div class="loading">Loading players...</div>';
+      
+      try {
+        const url = team ? `/cricket/players?team=${encodeURIComponent(team)}` : '/cricket/players';
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.success && data.data && data.data.length > 0) {
+          playerDataDiv.innerHTML = data.data.map(player => `
+            <div class="player-card">
+              <div class="player-avatar">${player.name.charAt(0)}</div>
+              <div class="player-info">
+                <div class="player-name">${player.name}</div>
+                <div class="player-team">${player.currentTeams?.join(', ') || player.country || 'No team'}</div>
+                <p><strong>Role:</strong> ${player.role || 'Unknown'}</p>
+                <p><strong>Batting:</strong> ${player.battingStyle || 'Unknown'}</p>
+                ${player.bowlingStyle ? `<p><strong>Bowling:</strong> ${player.bowlingStyle}</p>` : ''}
+              </div>
+            </div>
+          `).join('');
+        } else {
+          playerDataDiv.innerHTML = '<div class="loading">No players found for this team</div>';
+        }
+      } catch (error) {
+        console.error("Error fetching players:", error);
+        playerDataDiv.innerHTML = '<div class="loading">Error loading players. Please try again.</div>';
+      }
+    }
+    
+    // Tab functionality
+    function openTab(tabName) {
+      const tabs = document.getElementsByClassName('tab');
+      const tabContents = document.getElementsByClassName('tab-content');
+      
+      for (let i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove('active');
+        tabContents[i].classList.remove('active');
+      }
+      
+      document.getElementById(tabName).classList.add('active');
+      const tabButtons = document.getElementsByClassName('tab');
+      for (let i = 0; i < tabButtons.length; i++) {
+        if (tabButtons[i].textContent.toLowerCase().includes(tabName)) {
+          tabButtons[i].classList.add('active');
+          break;
+        }
+      }
+    }
+    
+    // Event listeners
+    document.getElementById('getMatchesBtn').addEventListener('click', () => fetchMatches());
+    document.getElementById('allMatchesBtn').addEventListener('click', () => fetchMatches('all'));
+    document.getElementById('liveMatchesBtn').addEventListener('click', () => fetchMatches('live'));
+    document.getElementById('upcomingMatchesBtn').addEventListener('click', () => fetchMatches('upcoming'));
+    document.getElementById('iplMatchesBtn').addEventListener('click', () => fetchMatches('ipl'));
+    
     document.getElementById('logoutBtn').addEventListener('click', () => {
       window.location.href = 'login.html';
+    });
+    
+    // Load matches when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchMatches();
     });
   </script>
 </body>
