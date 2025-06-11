@@ -1,8 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 
-// Firebase config (Use values from your .env or hardcode here if not using a bundler like Vite/Webpack)
 const firebaseConfig = {
   apiKey: "AIzaSyBgCC0Odm5vHBDb3hESNd9v3nF3fBfORGw",
   authDomain: "cricket-auth-app.firebaseapp.com",
@@ -12,13 +10,10 @@ const firebaseConfig = {
   appId: "1:759240201993:web:1c9727c9378d3b2116e"
 };
 
-// Init Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Home Page Auth Check
   if (window.location.pathname.includes("home")) {
     onAuthStateChanged(auth, (user) => {
       if (!user) {
@@ -31,35 +26,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const logoutBtn = document.getElementById("logoutBtn");
 
     matchBtn?.addEventListener("click", async () => {
+      matchDiv.innerHTML = "Loading matches...";
       try {
-        const res = await fetch("/cricket/live");
+        const res = await fetch("/cricket/matches");
         const data = await res.json();
 
-        if (data && data.data && data.data.length > 0) {
-          matchDiv.innerHTML = data.data
-            .map((m) => `
-              <div class="match-card">
-                <strong>${m.name}</strong><br/>
-                Status: ${m.status}<br/>
-                ${m.date}
-              </div>
-            `).join("");
-
-          // OPTIONAL: Save to Firestore
-          for (let match of data.data) {
-            await addDoc(collection(db, "matches"), {
-              name: match.name,
-              status: match.status,
-              date: match.date
-            });
-          }
-
+        if (data.success && data.data.length > 0) {
+          matchDiv.innerHTML = data.data.map(m => `
+            <div class="match-card">
+              <strong>${m.name}</strong><br/>
+              <em>${m.date}</em><br/>
+              <span>${m.status}</span><br/>
+              ${m.score ? <p>${m.score}</p> : ""}
+              <hr/>
+            </div>
+          `).join("");
         } else {
-          matchDiv.innerHTML = "<p>No matches found.</p>";
+          matchDiv.innerHTML = "<p>No match data available.</p>";
         }
       } catch (err) {
-        console.error("Fetch error:", err);
-        matchDiv.innerHTML = "<p>Error loading matches.</p>";
+        console.error("Error:", err);
+        matchDiv.innerHTML = "<p>Error fetching match data.</p>";
       }
     });
 
@@ -69,7 +56,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Register Page
   const registerForm = document.getElementById("registerForm");
   registerForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -83,19 +69,18 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ email, password })
       });
 
+      const result = await res.json();
       if (res.ok) {
         alert("Registered successfully");
         window.location.href = "/login.html";
       } else {
-        const data = await res.json();
-        alert(data.error || "Registration failed");
+        alert(result.error || "Registration failed");
       }
     } catch {
-      alert("Something went wrong");
+      alert("Registration failed due to server error");
     }
   });
 
-  // Login Page
   const loginForm = document.getElementById("loginForm");
   loginForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -109,15 +94,15 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ email, password })
       });
 
+      const result = await res.json();
       if (res.ok) {
-        alert("Logged in!");
+        alert("Login successful");
         window.location.href = "/home.html";
       } else {
-        const data = await res.json();
-        alert(data.error || "Login failed");
+        alert(result.error || "Login failed");
       }
     } catch {
-      alert("Something went wrong");
+      alert("Login failed due to server error");
     }
   });
 });
